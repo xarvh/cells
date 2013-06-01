@@ -8,6 +8,9 @@ class Species:
 class Reaction:
   def __init__(self, reagents, products, speed):
 
+    if len(reagents) < 1:
+      raise Error('nil ex nihilo!')
+
     if len(reagents) != len(products):
       raise Error('species number error')
 
