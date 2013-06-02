@@ -30,11 +30,11 @@ class Reaction:
         target[species_names.index(specie)] = cf
 
     if sum(self.reagents) < 1:
-      raise Error('nil ex nihilo error')
+      raise Exception('nil ex nihilo error')
 
     # enforce Lavoisier's law
     if sum(self.reagents) is not sum(self.products):
-      raise Error('Lavoisier error')
+      raise Exception('Lavoisier error')
 
 
 
@@ -45,17 +45,21 @@ class Chemistry:
 
     for n, l in enumerate(bf.split('\n')):
       if len(l) == 0 or l[0] == '#': continue
-      try: self.species.append Specie(l)
+      try: self.species.append(Specie(l))
       except:
-        try: self.reactions.append Reaction(l, [s.name for s in species])
-        except: raise Error('Unable to interprete line %d: "%s"' % (n, l))
+        try: self.reactions.append(Reaction(l, [s.name for s in self.species]))
+        except Exception as e:
+          raise Exception('Unable to interprete line %d: "%s" (%s)' % (n+1, l, e))
+
+    # add ids
+    for i, r in enumerate(self.reactions): r.id = i
+    for i, s in enumerate(self.species): s.id = i
 
     ### check: all substances must appear at least once as products of a reaction
     ### and at least once as reagents
 
 
-
-  def react(quantities):
+  def react(self, quantities):
     """
     Makes a batch of quantities react together, calculating new quantities.
 
@@ -94,19 +98,19 @@ class Chemistry:
     total_demand = [ sum( raw_demand[r.id] * r.reagents[s.id] for r in reactions ) for s in species ]
 
     # available quantity divided by total demand
-    normalization_cf = [ q / t if t else 0 for q, t in zip(quantities, total_demand) ]
+    weights = [ q / float(t) if t else 0 for q, t in zip(quantities, total_demand) ]
     
 
     # actual events per reaction
     events = [
-      min( N * raw / cf for N, cf in zip(normalization_cf, r.reagents) if cf )
+      min( w * raw / cf for w, cf in zip(weights, r.reagents) if cf )
       for raw in raw_demand]
 
 
     # remove used reagents
     for e, r in zip(events, reactions):
-      for cf_in, cf_out in zip(r.reagents, r.products):
-        quantities += (cf_out - cf_in) * e
+      for specie, cf_in, cf_out in zip(species, r.reagents, r.products):
+        quantities[specie.id] += (cf_out - cf_in) * int(e)
 
     # done
     return quantities
