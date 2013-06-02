@@ -1,33 +1,58 @@
+import re
 
-class Species:
-  def __init__(self):
-    self.id = ''
-    self.diffusion = 100
+
+class Specie:
+  "A chemical substance able to interact with other substances."
+
+  def __init__(self, str):
+    name, diffusion = str.split()
+    self.name = name
+    self.diffusion = int(diffusion)
 
 
 class Reaction:
-  def __init__(self, reagents, products, speed):
+  ""
 
-    if len(reagents) < 1:
-      raise Error('nil ex nihilo!')
+  def __init__(self, str, species_names):
 
-    if len(reagents) != len(products):
-      raise Error('species number error')
+    tokens = str.split()
+    self.speed = int(tokens[0])
+    self.reagents = [0] * len(species_names)
+    self.products = [0] * len(species_names)
+    target = self.reagents
+
+    for t in tokens[1:]:
+      if t == '->': target = self.products
+      elif t == '+': continue
+      else:
+        cf, specie = re.match(r'(\d?)(\S+)', t).groups()         
+        cf = int(cf) if cf else 1
+        target[species_names.index(specie)] = cf
+
+    if sum(self.reagents) < 1:
+      raise Error('nil ex nihilo error')
 
     # enforce Lavoisier's law
-    if sum(reagents) is not sum(products):
+    if sum(self.reagents) is not sum(self.products):
       raise Error('Lavoisier error')
 
-    # stechiometric coefficiens
-    self.reagents = reagents
-    self.products = products
-    self.speed = speed
 
 
 class Chemistry:
-  def __init__(self):
+  def __init__(self, bf):
     self.species = []
     self.reactions = []
+
+    for n, l in enumerate(bf.split('\n')):
+      if len(l) == 0 or l[0] == '#': continue
+      try: self.species.append Specie(l)
+      except:
+        try: self.reactions.append Reaction(l, [s.name for s in species])
+        except: raise Error('Unable to interprete line %d: "%s"' % (n, l))
+
+    ### check: all substances must appear at least once as products of a reaction
+    ### and at least once as reagents
+
 
 
   def react(quantities):
