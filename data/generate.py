@@ -33,14 +33,9 @@ def generate_reaction(pin, pout):
 
 
 
+def generate_chemistry(species_cnt):
 
-
-
-
-
-def main():
-
-  species_cnt = int(sys.argv[1])
+  o = []
 
   # generate species
   species = []
@@ -48,7 +43,7 @@ def main():
     name = chr( i + ord('A') )
     diffusion = 0
     species.append(name)
-    print name, diffusion
+    o.append("%s  %d" % (name, diffusion))
 
   # helper to generate shuffled species lists
   shsp = lambda: sorted(species, key=lambda x: random.random())
@@ -57,14 +52,19 @@ def main():
   for specie in species:
 
     # consumption reaction
-    print generate_reaction(shsp() + [specie], shsp())
+    o.append(generate_reaction(shsp() + [specie], shsp()))
 
     # generation function
-    print generate_reaction(shsp(), shsp() + [specie])
+    o.append(generate_reaction(shsp(), shsp() + [specie]))
 
   #### generate more reactions?
 
+  # done
+  return '\n'.join(o)
+
+
 
 #
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+  print generate_chemistry(int(sys.argv[1]))
 
