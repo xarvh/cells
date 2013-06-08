@@ -7,7 +7,10 @@ class Specie:
   def __init__(self, str):
     name, diffusion = str.split()
     self.name = name
-    self.diffusion = int(diffusion)
+    self.color = None
+
+    # diffusion is the proportion of specie that is diffused away at each iteration
+    self.diffusion = float(diffusion)
 
 
 class Reaction:
@@ -54,6 +57,18 @@ class Chemistry:
     # add ids
     for i, r in enumerate(self.reactions): r.id = i
     for i, s in enumerate(self.species): s.id = i
+
+
+
+  def diffuse(self, quantities, points = 4)
+    diffused = [None] * len(quantities)
+
+    for i, s in enumerate(self.species):
+      diffused[i] = int(quantities[i] * s.diffusion / points)
+      quantities[i] -= diffused[i] * points
+
+    return diffused
+    
 
 
 
