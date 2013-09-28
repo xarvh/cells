@@ -60,7 +60,7 @@ class Chemistry:
 
 
 
-  def diffuse(self, quantities, points = 4)
+  def diffuse(self, quantities, points = 4):
     diffused = [None] * len(quantities)
 
     for i, s in enumerate(self.species):
