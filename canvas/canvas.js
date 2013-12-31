@@ -1,8 +1,8 @@
 //
 var context, width, height, frames = null
+var mouseX, mouseY, frameId = 0
 
 
-//
 var draw = function() {
 
   var imageData = context.createImageData(width, height);
@@ -30,24 +30,41 @@ var draw = function() {
 
 
 
-
-
-
-
+function findPos(obj) {
+  var curleft = 0, curtop = 0;
+  while (obj.offsetParent) {
+    curleft += obj.offsetLeft;
+    curtop += obj.offsetTop;
+    obj = obj.offsetParent;
+  }
+  return { x: curleft, y: curtop };
+}
 
 
 window.onload = function() {
 
+  var canavasE = document.getElementById('grid')
   var gf = window.gridFrames
 
+  // set globals
   width = gf.width
   height = gf.height
   frames = gf.frames
-  context = document.getElementById('grid').getContext('2d');
+  context = canavasE.getContext('2d');
 
+  // set context size
   context.canvas.width = width
   context.canvas.height = height
 
+  // set hooks
+  canavasE.onmousemove = function(e) {
+    var pos = findPos(this);
+    mouseX = e.pageX - pos.x;
+    mouseY = e.pageY - pos.y;
+    draw()
+  };
+
+  // initial draw
   draw()
 }
 
